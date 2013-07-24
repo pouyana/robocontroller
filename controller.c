@@ -27,7 +27,7 @@ void print_usage(){
  * print help out. how to use the program is defined here. 
  */
 void print_help(){
-    printf("Controller.o is a program to generate trajectory for a 2wheel\nrobot. It is licensed with GNU GPL 1.\n---------------------\nTo pass arguements to the application you can use these options:\n-s : passes the start coordinates, default values are set with (0,0,90).\n-e : passes the destiation coordinates. must be set.\n-h : show you this help.\nExample:\ncontroller.o -s 0,0,90  -e 1,1,-90\nwill give you the trajectory from 0,0,looking upward (x,y) to 1,1 looking downward.\n");
+    printf("Controller.o is a program to generate trajectory for a 2wheel\nrobot. It is licensed with GNU GPL 2.\n---------------------\nTo pass arguements to the application you can use these options:\n-s : passes the start coordinates, default values are set with (0,0,90).\n-e : passes the destiation coordinates. must be set.\n-h : show you this help.\nExample:\ncontroller.o -s 0,0,90  -e 1,1,-90\nwill give you the trajectory from 0,0,looking upward (x,y) to 1,1 looking downward.\n");
 }
 
 /*
