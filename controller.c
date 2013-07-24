@@ -67,14 +67,13 @@ Coord str_split(char * a_str,const char * a_delim)
  *  Claculating the new x,y with the help of sin and cos function
  *  sample time as it is stated is 100ms
  */
-int CalcNextPosition(double x,double y, double * u,  double * omega, double * x_n, double * y_n)
+int CalcNextPosition(double x,double y, double * u,  double * omega, double * x_n, double * y_n,double *v_x,double *v_y)
 {
-    double v_x;
-    double v_y;
-    v_x = *u * cos(*omega);
-    v_y = *u * sin(*omega);
-    * x_n = x + v_x * 0.1; //100ms (0.1 sec);
-    * y_n = y + v_y * 0.1;
+    * v_x = * u * cos(*omega);
+    * v_y = * u * sin(*omega);
+    //    printf("LastX=%f,Lasty=%f\n",x,y);
+    * x_n = x + * v_x * 0.1; //100ms (0.1 sec);
+    * y_n = y + * v_y * 0.1;
     return 0;
 }
 
@@ -129,13 +128,14 @@ int main(int argc, char **argv) {
     int option = 0;
     char *  startvals = NULL;
     char *  endvals = NULL;
+    char *  max_vel = NULL;
     Coord startCoord;
     startCoord.x = 0.0;
     startCoord.y = 0.0;
     startCoord.alpha = degtorad(90);
     Coord endCoord;
     //(:) means that it has a value.
-    while ((option = getopt(argc, argv,"she:")) != -1){
+    while ((option = getopt(argc, argv,"s:v:he:")) != -1){
         switch (option) {
             case 's' : 
                 startvals = optarg ;
@@ -146,32 +146,48 @@ int main(int argc, char **argv) {
             case 'h' : 
                 print_help(); 
                 break;
+            case 'v' :
+                max_vel = optarg;
+                break;
             default: 
                 print_usage(); 
                 exit(EXIT_FAILURE);
         }
-        if(endvals){
+        double max_speed = atof(max_vel);
+        //double max_speed = atof(max_vel);
+        if(startvals){
+            startCoord = str_split(startvals,",");
+        }
+        //if the end coordinates are set then do the calculation
+        if(endvals && max_speed){
             endCoord=str_split(endvals,",");
-            printf("End Coordniates:\nx=%5.2f,y=%5.2f,alpha=%5.2f\n",endCoord.x,endCoord.y,endCoord.alpha);
+            printf("\nEnd Coordniates:\nx=%5.2f,y=%5.2f,alpha=%5.2f\n",endCoord.x,endCoord.y,endCoord.alpha);
+            printf("\nStart Coordinates:\nx=%5.2f,y=%5.2f,alpha=%5.2f\n",startCoord.x,startCoord.y,startCoord.alpha);
+            //start calculation
+            double omega[10];
+            double u[10];
+            double x_n[10];
+            double y_n[10];
+            double v_x[10];
+            double v_y[10];
+            int sim_count = 0;
+            //max speed set as six will be added as a paramter.
+            CalcNextVelocities(max_speed,endCoord.x,endCoord.y,endCoord.alpha,u,omega);
+            CalcNextPosition(startCoord.x,startCoord.y,u,omega,x_n,y_n,v_x,v_y);
+            //CalcNextVelocities(20,12,-4,M_PI/2,u,omega);
+            //CalcNextPosition(0,0,u,omega,x_n,y_n,v_x,v_y);
+            printf("Starting Simulation:\n");
+            while(*u>00.1){
+                sim_count++;
+                CalcNextVelocities(max_speed,*x_n-endCoord.x ,*y_n-endCoord.y,*omega,u,omega);
+                //CalcNextVelocities(20,*x_n-12,*y_n+4,*omega,u,omega);
+                CalcNextPosition(*x_n,*y_n,u,omega,x_n,y_n,v_x,v_y);
+                printf("X=%2.5f\tY=%2.5f\t,V=%2.5f\t,alpha=%2.5f\t,Vx=%2.5f\t,Vy=%2.5f\n",*x_n,*y_n,*u,*omega,*v_x,*v_y);
+            }
+            printf ("Finished Simulation with %i simulations\n",sim_count);
         }
         else {
             print_usage();
         }
     }
 }
-/*    double omega[10];
-      double u[10];
-      double x_n[10];
-      double y_n[10];
-      double desired_x = 3.0;
-      double desired_y = -2.0;
-      CalcNextVelocities(6,desired_x,desired_y,M_PI/2,u,omega);
-      CalcNextPosition(0,0,u,omega,x_n,y_n);
-      printf("Starting Simulation:\n");
-      while(*u!=0){
-      CalcNextVelocities(6,*x_n-desired_x ,*y_n-desired_y,*omega,u,omega);
-      CalcNextPosition(*x_n,*y_n,u,omega,x_n,y_n);
-      printf("X=%2.5f\tY=%2.5f\n",*x_n,*y_n);
-      }
-      printf ("Finished Simulation\n");
-      }*/
