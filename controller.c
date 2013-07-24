@@ -101,6 +101,7 @@ int CalcNextVelocities(double u_max, double x,double y, double phi, double *u, d
         if(alpha < -M_PI)   alpha += 2.0 * M_PI;
 
         *u = gamma * e;
+
         if (*u >= u_max) {
             *u = u_max;
         }
@@ -170,6 +171,7 @@ int main(int argc, char **argv) {
             double y_n[10];
             double v_x[10];
             double v_y[10];
+            double max_on_run =0;
             int sim_count = 0;
             //max speed set as six will be added as a paramter.
             CalcNextVelocities(max_speed,endCoord.x,endCoord.y,endCoord.alpha,u,omega);
@@ -178,13 +180,16 @@ int main(int argc, char **argv) {
             //CalcNextPosition(0,0,u,omega,x_n,y_n,v_x,v_y);
             printf("Starting Simulation:\n");
             while(*u>00.1){
+                if(*u > max_on_run){ 
+                    max_on_run = *u;
+                }
                 sim_count++;
                 CalcNextVelocities(max_speed,*x_n-endCoord.x ,*y_n-endCoord.y,*omega,u,omega);
                 //CalcNextVelocities(20,*x_n-12,*y_n+4,*omega,u,omega);
                 CalcNextPosition(*x_n,*y_n,u,omega,x_n,y_n,v_x,v_y);
                 printf("X=%2.5f\tY=%2.5f\t,V=%2.5f\t,alpha=%2.5f\t,Vx=%2.5f\t,Vy=%2.5f\n",*x_n,*y_n,*u,*omega,*v_x,*v_y);
             }
-            printf ("Finished Simulation with %i simulations\n",sim_count);
+            printf ("Finished Simulation with %i simulations\n with max speed needed:%f",sim_count,max_on_run);
         }
         else {
             print_usage();
